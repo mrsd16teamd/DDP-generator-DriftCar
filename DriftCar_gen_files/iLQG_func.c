@@ -1,4 +1,4 @@
-/* File generated form template iLQG_func.tem on 2017-03-19 19:50:50-04:00. Do not edit! */
+/* File generated form template iLQG_func.tem on 2017-03-20 12:39:20-04:00. Do not edit! */
 
 #include "iLQG.h"
 #include "matMult.h"
@@ -6,7 +6,6 @@
 #define mcond(cond, a, dummy, b) ((cond)? a: b)
 #define abs fabs
 #define sec(x) (1/cos(x))
-
 
 int n_params= 22;
     

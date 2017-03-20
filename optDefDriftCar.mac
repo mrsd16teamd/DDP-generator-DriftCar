@@ -4,9 +4,6 @@ gradef(abs(xxxx), if xxxx>0 then 1 else -1);
 x: [x_, y_, phi, Ux, Uy, r, pthr, psteer, dthr, dsteer];
 u: [thr, steer];
 
-infix("==");
-"==" (a, b) := not(a>b) and not(b>a);
-
 wrapToPi(angle):= fmod(angle + %pi, 2 * %pi) - %pi;
 
 tire_dyn(Fz,Ux,thr,alpha):=
@@ -50,20 +47,20 @@ dr, dUx, dUy, U, dx, dy],
     [thr, steer]: u,
 
     alpha_F:
-    if Ux==0 and Uy==0
+    if Ux=0 and Uy=0
     then 0
-    else if Ux==0 and Uy>0
+    else if Ux=0 and Uy>0
     then %pi / 2 - steer
-    else if Ux==0 and Uy<0
+    else if Ux=0 and Uy<0
     then -%pi / 2 - steer
     else atan((Uy+a*r)/abs(Ux))-steer,
 
     alpha_R:
-    if Ux==0 and Uy==0
+    if Ux=0 and Uy=0
     then 0
-    else if Ux==0 and Uy>0
+    else if Ux=0 and Uy>0
     then %pi / 2
-    else if Ux==0 and Uy<0
+    else if Ux=0 and Uy<0
     then -%pi / 2
     else atan((Uy-b*r)/abs(Ux)),
 
@@ -77,13 +74,13 @@ dr, dUx, dUy, U, dx, dy],
     U: sqrt(Ux^2+Uy^2),
 
     beta:
-    if Ux==0 and Uy==0
+    if Ux=0 and Uy=0
     then 0
-    else if Ux==0 and Uy>0
+    else if Ux=0 and Uy>0
     then %pi/2
-    else if Ux==0 and Uy<0
+    else if Ux=0 and Uy<0
     then -%pi/2
-    else if Ux<0 and Uy==0
+    else if Ux<0 and Uy=0
     then %pi
     else if Ux<0 and Uy>0
     then %pi-atan(Uy/abs(Ux))
