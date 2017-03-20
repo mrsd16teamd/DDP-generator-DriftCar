@@ -1,22 +1,14 @@
-gradef(fmod(xxxx, yyyy), 1, 0); 
 gradef(abs(xxxx), if xxxx>0 then 1 else -1);
 
 x: [x_, y_, phi, Ux, Uy, r, pthr, psteer, dthr, dsteer];
 u: [thr, steer];
 
-wrapToPi(angle):= fmod(angle + %pi, 2 * %pi) - %pi;
-
 tire_dyn(Fz,Ux,thr,alpha):=
 block([K,gamma,F,Fx,Fy],
-    if Ux=0 and thr>0
-    then return ([mu*Fz,0])
-    else if Ux=0 and thr<0
-    then return ([-mu*Fz,0])
-    else if Ux=0 and thr=0
-    then K:0
-    else K:(thr-Ux)/abs(Ux),
+    K:(thr-Ux)/(abs(Ux)+1e-3),
 
     reverse:1,
+    
     if K<0
     then (reverse:-1, K:abs(K)),
 
@@ -46,23 +38,9 @@ dr, dUx, dUy, U, dx, dy],
     [x_, y_, phi, Ux, Uy, r]: x,
     [thr, steer]: u,
 
-    alpha_F:
-    if Ux=0 and Uy=0
-    then 0
-    else if Ux=0 and Uy>0
-    then %pi / 2 - steer
-    else if Ux=0 and Uy<0
-    then -%pi / 2 - steer
-    else atan((Uy+a*r)/abs(Ux))-steer,
+    alpha_F: atan((Uy+a*r)/(abs(Ux)+1e-3))-steer,
 
-    alpha_R:
-    if Ux=0 and Uy=0
-    then 0
-    else if Ux=0 and Uy>0
-    then %pi / 2
-    else if Ux=0 and Uy<0
-    then -%pi / 2
-    else atan((Uy-b*r)/abs(Ux)),
+    alpha_R: atan((Uy-b*r)/(abs(Ux)+1e-3)),
 
     [Fxf,Fyf]: tire_dyn(G_f,Ux,Ux,alpha_F),
     [Fxr,Fyr]: tire_dyn(G_r,Ux,thr,alpha_R),
@@ -71,22 +49,14 @@ dr, dUx, dUy, U, dx, dy],
     dUx: (Fxr-Fyf*sin(steer))/m+r*Uy,
     dUy: (Fyf*cos(steer)+Fyr)/m-r*Ux,
 
-    U: sqrt(Ux^2+Uy^2),
+    U: sqrt(Ux^2+Uy^2+1e-6),
 
     beta:
-    if Ux=0 and Uy=0
-    then 0
-    else if Ux=0 and Uy>0
-    then %pi/2
-    else if Ux=0 and Uy<0
-    then -%pi/2
-    else if Ux<0 and Uy=0
-    then %pi
-    else if Ux<0 and Uy>0
-    then %pi-atan(Uy/abs(Ux))
+    if Ux<0 and Uy>0
+    then %pi-atan(Uy/(abs(Ux)+1e-3))
     else if Ux<0 and Uy<0
-    then -%pi-atan(Uy/abs(Ux))
-    else atan(Uy/abs(Ux)),
+    then -%pi-atan(Uy/(abs(Ux)+1e-3))
+    else atan(Uy/(abs(Ux)+1e-3)),
 
     dx: U*cos(beta+phi),
     dy: U*sin(beta+phi),

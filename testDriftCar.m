@@ -35,7 +35,7 @@ p.xDes = [3 0 0 0 0 0];
 %% initial conditions
 T= 50;              % horizon
 t= (1:501)*p.h;
-x0= [0;0;0;3;0;0;0;0;0;0];   % initial state
+x0= [0;0;0;0;0;0;0;0;0;0];   % initial state
 u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
 u0(2,:) = 0.1*randn(1,T); % steering
 
