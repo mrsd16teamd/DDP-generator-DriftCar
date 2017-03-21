@@ -38,7 +38,10 @@ dr, dUx, dUy, U, dx, dy],
     [x_, y_, phi, Ux, Uy, r]: x,
     [thr, steer]: u,
 
-    alpha_F: atan((Uy+a*r)/(abs(Ux)+1e-3))-steer,
+    alpha_F: 
+    if Ux >= 0
+    then atan((Uy+a*r)/(abs(Ux)+1e-3))- steer
+    else atan((Uy+a*r)/(abs(Ux)+1e-3))+ steer,
 
     alpha_R: atan((Uy-b*r)/(abs(Ux)+1e-3)),
 
