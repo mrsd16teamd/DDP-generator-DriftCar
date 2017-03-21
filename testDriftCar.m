@@ -32,18 +32,24 @@ p.limSteer= [-0.68  0.76];
 
 p.xDes = [3 0 0 0 0 0];
 
+p.k_pos = 0.5;
+p.k_vel = 0.1;
+p.d_thres = 0.3;
+p.Obs = [1 0];
+
 %% initial conditions
 T= 50;              % horizon
 t= (1:501)*p.h;
-x0= [0;0;0;0;0;0;0;0;0;0];   % initial state
+x0= [0;0;0;3;0;0;0;0;0;0];   % initial state
 u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
 u0(2,:) = 0.1*randn(1,T); % steering
 
-Op.max_iter= 50;
+Op.max_iter= 100;
 
 tic
 [success, x, u, cost]= iLQGDriftCar(x0, u0, p, Op);
 toc
 
 figure
+init_plot(x0,p.xDes,p.Obs);
 car_plot(x,u);

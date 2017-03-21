@@ -1,0 +1,90 @@
+gradef(abs(xxxx), if xxxx>0 then 1 else -1);
+
+x: [x_, y_, phi, Ux, Uy, r, pthr, psteer, dthr, dsteer];
+u: [thr, steer];
+
+U: sqrt(Ux^2+Uy^2+1e-6);
+
+beta_:
+if Ux<0 and Uy>0
+then %pi-atan(Uy/(abs(Ux)+1e-3))
+else if Ux<0 and Uy<0
+then -%pi-atan(Uy/(abs(Ux)+1e-3))
+else atan(Uy/(abs(Ux)+1e-3));
+
+dx: 'U*cos('beta_+phi);
+dy: 'U*sin('beta_+phi);
+
+K_: (thr-Ux)/(abs(Ux)+1e-3);
+
+rev:
+if 'K_ < 0
+then -1
+else 1;
+
+K: abs(K_);
+
+alpha: atan((Uy+a*r)/(abs(Ux)+1e-3))-(Ux/(abs(Ux)+1e-3))*steer;
+
+alpha_F:
+if abs('alpha)>%pi/2
+then (%pi-abs('alpha))*('alpha/abs('alpha))
+else 'alpha;
+
+alpha_R: atan((Uy-b*r)/(abs(Ux)+1e-3));
+
+gamma_F: sqrt(c_a^2*tan(alpha)^2);
+
+gamma_R: sqrt(c_x^2*('K/(1+'K))^2+c_a^2*(tan('alpha_R)/(1+'K))^2);
+
+F_f: 
+if 'gamma_F <= 3*mu*G_f
+then 'gamma_F - 1/(3*mu*G_f)*(2-mu_s/mu)*'gamma_F^2 + 1/(9*mu^2*G_f^2)*(1-(2/3)*(mu_s/mu))*'gamma_F^3
+else mu_s*G_f;
+
+Fyf:
+if '('gamma_F=0)
+then 0
+else -c_a/'gamma_F * (tan('alpha_F)*'F_f);
+
+F_r:
+if 'gamma_R <= 3*mu*G_r
+then 'gamma_R - 1/(3*mu*G_r)*(2-mu_s/mu)*'gamma_R^2 + 1/(9*mu^2*G_r^2)*(1-(2/3)*(mu_s/mu))*'gamma_R^3
+else mu_s*G_r;
+
+Fxr:
+if '('gamma_R=0)
+then 0
+else c_x/'gamma_R * ('K/(1+'K)) * 'F_r * 'rev;
+
+Fyr:
+if '('gamma_R=0)
+then 0
+else -c_a/'gamma_R * (tan('alpha_R)*'F_r);
+
+dr: (a*'Fyf*cos(steer)-b*'Fyr)/Iz;
+dUx: ('Fxr-'Fyf*sin(steer))/m+r*Uy;
+dUy: ('Fyf*cos(steer)+'Fyr)/m-r*Ux;
+
+f[x_]: x_ + 'dx*h;
+f[y_]: y_ + 'dy*h;
+f[phi]: phi + r*h;
+f[Ux]: Ux + 'dUx*h;
+f[Uy]: Uy + 'dUy*h;
+f[r]: r + 'dr*h;
+f[pthr]: thr;
+f[psteer]: steer;
+f[dthr]: thr-pthr;
+f[dsteer]: steer-psteer;
+
+
+sqrtabs(x, e):= sqrt(x^2 + e^2) - e;
+
+F: cf[0]*sqrtabs(x_-xDes[0], pf[0])  + cf[1]*sqrtabs(y_-xDes[1], pf[1])  + cf[2]*sqrtabs(phi-xDes[2], pf[2])  + cf[3]*sqrtabs(Ux-xDes[3], pf[3]) + cf[4]*sqrtabs(Uy-xDes[4], pf[4]) + cf[5]*sqrtabs(r-xDes[5], pf[5]);
+L: cu[0]*thr^2 + cu[1]*steer^2 + cdu[0]*dthr^2 + cdu[1]*dsteer^2 + cx[0]*sqrtabs(x_-xDes[0], px[0]) + cx[1]*sqrtabs(y_-xDes[1], px[1]) + cx[2]*sqrtabs(phi-xDes[2], px[2]) + cdx[0]*sqrtabs(Ux-xDes[3], px[0]) + cdx[1]*sqrtabs(Uy-xDes[4], px[1]) + cdx[2]*sqrtabs(r-xDes[5], px[2]) + cdrift*(sqrtabs(x[4], 1)-0.2);
+
+h[1]: -thr + limThr[0]; 
+h[2]: thr - limThr[1]; 
+h[3]: -steer + limSteer[0]; 
+h[4]: steer - limSteer[1]; 
+
