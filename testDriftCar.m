@@ -30,7 +30,7 @@ p.cdrift = -0.001;
 p.limThr= [0 4];
 p.limSteer= [-0.68  0.76];
 
-p.xDes = [3 0 0 0 0 0];
+p.xDes = [3 0 0 3 0 0];
 
 p.k_pos = 0.1;
 p.k_vel = 0;
@@ -40,8 +40,8 @@ p.Obs = [1 0];
 %% initial conditions
 T= 50;              % horizon
 t= (1:501)*p.h;
-x0= [0;0;0;3;0;0;0;0;0;0];   % initial state
-u0(1,:) = 0.25*randn(1,T) +2; % commanded speed
+x0= [0;0;0;3;0;0;3;0;0;0];   % initial state
+u0(1,:) = 0.25*randn(1,T) + 3; % commanded speed
 u0(2,:) = 0.1*randn(1,T) + 0.1; % steering
 
 Op.max_iter= 100;
