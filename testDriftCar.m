@@ -13,7 +13,7 @@ p.c_x = 116;          % longitude stiffness
 p.c_a = 197;      % laternal stiffness
 p.Iz = 0.025; % roatation inertia
 p.mu = 1.31;   
-p.mu_s = 0.5;
+p.mu_s = 0.55;
 
 p.cu= 1e-1*[1 1];
 p.cdu= 1e-1*[1 15];
@@ -30,7 +30,9 @@ p.cdrift = -0.001;
 p.limThr= [-1 4];
 p.limSteer= [-0.68  0.76];
 
-p.xDes = [5 0 0 3 0 0];
+p.xDes = [5 0 0 3 0 0]; % Moose Test
+% p.xDes = [1.2 0.5 pi 0 0 0]; % Parallel Park
+
 
 p.k_pos = 0.1;
 p.k_vel = 0;
@@ -40,7 +42,10 @@ p.Obs = [1 0];
 %% initial conditions
 T= 50;              % horizon
 t= (1:501)*p.h;
-x0= [0;0;0;3;0;0;3;0;0;0];   % initial state
+x0= [0;0;0;3;0;0;3;0;0;0];   % initial state - Moose Test
+% x0= [0;0;0;3.5;0;0;3.5;0;0;0];   % initial state - Parallel Park
+
+
 x00 = x0;
 u0(1,:) = 0.25*randn(1,T) + 3; % commanded speed
 u0(2,:) = 0.1*randn(1,T) + 0.1; % steering
