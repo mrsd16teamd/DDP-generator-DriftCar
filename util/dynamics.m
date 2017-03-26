@@ -21,7 +21,7 @@ C_x = 116;   %330       % longitudinal stiffness
 C_alpha = 197; %300      % lateral stiffness
 Iz = 0.025; %0.02065948883 % rotational inertia
 mu = 1.31; %5.2/G_rear   
-mu_spin = 0.5; %4.3/G_rear
+mu_spin = 0.55; %4.3/G_rear
 
 if exist('params','var')
     % params = [C_alpha, C_x, Iz, mu, mu_spin]
@@ -86,7 +86,7 @@ Ux_dot = (Fxr-Fyf*sin(delta))/m+r*Uy;
 Uy_dot = (Fyf*cos(delta)+Fyr)/m-r*Ux;
 
 % translate dx to terrain frame
-U = sqrt(Ux^2+Uy^2);
+U = sqrt(Ux^2+Uy^2+1e-6);
 
 if Ux < 0
     beta = sign(Uy)*pi-atan(Uy/(abs(Ux)+1e-3));
