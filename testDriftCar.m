@@ -16,7 +16,7 @@ p.mu = 1.31;
 p.mu_s = 0.55;
 
 p.cu= 1e-1*[1 1];
-p.cdu= 1e-1*[1 15];
+p.cdu= 1e-1*[10 15];
 
 p.cf= [ 10 10 1 .1 .1 .1];
 p.pf= [ .01 .01 .1 .1 .1 .1];
@@ -25,12 +25,12 @@ p.cx  = 1e-2*[5  5 4];          % running cost coefficients
 p.cdx = 1e-1*[5 0.5 0.2];
 p.px  = [.01 .01 .1];   % smoothness scales for running cost
 
-p.cdrift = -0.001;
+p.cdrift = -0.01;
 
 p.limThr= [-1 4];
 p.limSteer= [-0.68  0.76];
 
-p.xDes = [5 0 0 3 0 0]; % Moose Test
+p.xDes = [3 0 0 3 0 0]; % Moose Test
 % p.xDes = [1.2 0.5 pi 0 0 0]; % Parallel Park
 
 
@@ -57,18 +57,18 @@ init_plot(x0,p.xDes,p.Obs);
 
 X = [];
 U = [];
-while pdist([x0(1:2)';p.xDes(1:2)]) > 0.15
+% while pdist([x0(1:2)';p.xDes(1:2)]) > 0.15
 tic
-[success, x, u, cost]= iLQGDriftCarFlat(x0, u0, p, Op);
-X = [X x(:,1:T/2)];
-U = [U u(:,1:T/2)];
+[success, x, u, cost]= iLQGDriftCar(x0, u0, p, Op);
+X = [X x(:,:)];
+U = [U u(:,:)];
 
-p.cf = 5*p.cf;
-p.cdu = 2*p.cdu;
-x0 = x(:,T/2);
-u0 = [u(:,T/2+1:end),.1*randn(2,T/2)];
+% p.cf = 5*p.cf;
+% p.cdu = 2*p.cdu;
+% x0 = x(:,T/2);
+% u0 = [u(:,T/2+1:end),.1*randn(2,T/2)];
 toc
-end
+% end
 
 figure(1)
 car_plot(X,U);
