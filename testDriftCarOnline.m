@@ -20,6 +20,15 @@ end
 obs_sub = rossubscriber('/ccs', 'std_msgs/Float32MultiArray', 'BufferSize', 10);
 obs_msg = obs_sub.LatestMessage;
 
+amcl_sub = rossubscriber('/amcl_pose_echo', 'geometry_msgs/PoseWithCovarianceStamped', 'BufferSize', 10);
+amcl_msg = amcl_sub.LatestMessage;
+
+twist_sub = rossubscriber('/cmd_vel', 'geometry_msgs/Twist', 'BufferSize', 10);
+twist_msg_sub = twist_sub.LatestMessage;
+
+odom_sub = rossubscriber('/odometry/filtered', 'nav_msgs/Odometry', 'BufferSize',10);
+odom_msg = odom_sub.LatestMessage;
+
 twist_chatpub = rospublisher('/cmd_vel','geometry_msgs/Twist');
 twist_msg = rosmessage(twist_chatpub);
 
@@ -148,9 +157,19 @@ function obs = getObstacleLocation()
         obs_msg = receive(obs_sub,10);
         obs = obs_msg.Data(1:2)';
         if (obs(1)<2 && abs(obs(2))<1)
-            return;
+            break;
         end
     end
+    twist_msg_sub = twist_sub.LatestMessage;
+    odom_msg = odom_sub.LatestMessage;
+%     amcl_msg = amcl_sub.LatestMessage;
+    
+    x0(4) = odom_msg.Twist.Twist.Linear.X;
+    x0(5) = odom_msg.Twist.Twist.Linear.Y;
+    x0(6) = odom_msg.Twist.Twist.Angular.Z;
+    x0(7) = twist_msg_sub.Linear.X;
+    x0(8) = twist_msg_sub.Angular.Z;
+
 end
 
 function publishTrajectory()
