@@ -62,7 +62,7 @@ static int ddpL(trajEl_t *t, int k, tOptSet *o) {
     t->c=(-1.2+sqrt(1.0+pow(x[3],2.0)))*p[8][0]+pow(x[8],2.0)*p[9][0]+pow(x[9],2.0)*p[9][1]+pow(u[0],2.0)*p[12][0]+pow(u[1],2.0)*p[12][1]+p[13][0]*(-p[24][0]+sqrt(pow(p[24][0],2.0)+pow(x[0]-p[25][0],2.0)))+p[13][1]*(-p[24][1]+sqrt(pow(p[24][1],2.0)+pow(x[1]-p[25][1],2.0)))+p[13][2]*(-p[24][2]+sqrt(pow(p[24][2],2.0)+pow(x[2]-p[25][2],2.0)))+p[10][0]*(-p[24][0]+sqrt(pow(p[24][0],2.0)+pow(x[3]-p[25][3],2.0)))+p[10][1]*(-p[24][1]+sqrt(pow(p[24][1],2.0)+pow(x[4]-p[25][4],2.0)))+p[10][2]*(-p[24][2]+sqrt(pow(p[24][2],2.0)+pow(x[5]-p[25][5],2.0)))+p[16][0]*mcond(sqrt(1.e-6+pow(x[0]-p[3][0],2.0)+pow(x[1]-p[3][1],2.0))>p[14][0],0.0,1,pow(1/sqrt(1.e-6+pow(x[0]-p[3][0],2.0)+pow(x[1]-p[3][1],2.0))-1/p[14][0],2.0))+p[17][0]*mcond(x[3]*(x[0]-p[3][0])+(x[1]-p[3][1])*x[4]<0.0,0.0,1,(x[3]*(x[0]-p[3][0])+(x[1]-p[3][1])*x[4])/sqrt(1.e-6+pow(x[0]-p[3][0],2.0)+pow(x[1]-p[3][1],2.0))/sqrt(1.e-6+pow(x[3],2.0)+pow(x[4],2.0)));
     if (isNANorINF(t->c))
         {
-            PRNT("    @k %d: t->c in line %d is : %g\n", k, __LINE__-3,t->c);
+            PRNT("    @k %d: t->c in line %d is nan or inf: %g\n", k, __LINE__-3,t->c);
             {
                 PRNT("        p[10,0]= %g\n",p[10][0]);
                 PRNT("        p[24,0]= %g\n",p[24][0]);
@@ -143,7 +143,7 @@ static int ddpF(trajFin_t *t, tOptSet *o) {
             }
             return(0);
         }
-    // printf("x:%f, y:%f, phi:%f, final_cost = %f\n", x[0], x[1], x[2], t->c);
+    
     return 1;
 }
 

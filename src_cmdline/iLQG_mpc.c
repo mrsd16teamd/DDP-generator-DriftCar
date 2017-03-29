@@ -15,9 +15,6 @@
 struct trajectory {
     double* x;  // states
     double* u;  // controls
-    int m;  // dimension of control
-    int n;  // dimension of states
-    int N;  // state horizon N=T+1
 };
 
 double* assignPtrVal(double* values, int numVal) {
@@ -100,7 +97,7 @@ void init_params(tOptSet *o, double* xDes, double* Obs)
     // printf("%f", o->p[3][0]);
 }
 
-double* plan_trajectory(double* x0, double* xDes, double* Obs, int T)
+void plan_trajectory(double* x0, double* xDes, double* Obs, int T, struct trajectory* Traj)
 {
     //TODO make o manually
 
@@ -152,8 +149,6 @@ double* plan_trajectory(double* x0, double* xDes, double* Obs, int T)
     double success[1];
     double new_cost[1];
 
-    double *x_new = malloc(n*N*sizeof(double));
-    double *u_new = malloc(m*(N-1)*sizeof(double));
     // double x_new[n*N];
     // double u_new[m*(N-1)];
 
@@ -185,60 +180,60 @@ double* plan_trajectory(double* x0, double* xDes, double* Obs, int T)
             printf("Time for iLQG: %f seconds\n", (double)(end - begin) / CLOCKS_PER_SEC);
             for(k= 0; k<N-1; k++)
                 for(i= 0; i<N_X; i++)
-                    x_new[MAT_IDX(i, k, N_X)]= o.nominal->t[k].x[i];
+                    Traj->x[MAT_IDX(i, k, N_X)]= o.nominal->t[k].x[i];
             for(i= 0; i<N_X; i++)
-                x_new[MAT_IDX(i, N-1, N_X)]= o.nominal->f.x[i];
+                Traj->x[MAT_IDX(i, N-1, N_X)]= o.nominal->f.x[i];
 
             for(k= 0; k<N-1; k++)
                 for(i= 0; i<N_U; i++)
-                    u_new[MAT_IDX(i, k, N_U)]= o.nominal->t[k].u[i];
+                    Traj->u[MAT_IDX(i, k, N_U)]= o.nominal->t[k].u[i];
 
             new_cost[0]= o.cost;
         }
     }
     printf("runs to here");
 
-    for(int i=0; i<n_params; i++) {
+    for(int i=0; i<n_params; i++)
         free(o.p[i]);
-    }
 
     free(o.p);
+
     for(i= 0; i<NUMBER_OF_THREADS+1; i++)
         free(o.trajectories[i].t);
-
-    printf("Control Sequence: \n");
-    for(int i=0; i<N-1; i++) {
-        printf("%f, %f\n", u_new[i*m], u_new[i*m+1]);
-    }
-
-    free(x_new);
-    return u_new;
 }
 
 int main() {
     int T = 50;
     double x0[10] = {0,0,0, 3,0,0,3,0,0,0};
-    double xDes[6] = {3.0, 0.0, 0.0, 3.0, 0.0, 0.0};
+    double xDes[6] = {3.0, 3.0, 1.5, 3.0, 0.0, 0.0};
     double Obs[2] = {1.0, 0.0};
 
     int N = T+1;
     int n = 10;
     int m = 2;
 
-    double* U;
+    struct trajectory Traj;
+    Traj.x = malloc(n*N*sizeof(double));
+    Traj.u = malloc(m*(N-1)*sizeof(double));
     // traj[0]: states, traj[1]: controls
-    U = plan_trajectory(x0,xDes,Obs,50);
+    plan_trajectory(x0,xDes,Obs,50,&Traj);
 
-    // FILE *U = fopen("U.csv", "w");
-    // for(int i=0; i<N-1; i++) {
-    //     fprintf(U, "%f, %f\n", [i*m], Traj.u[i*m+1]);
-    // }
-    // fclose(U);
-
-    printf("Control Sequence: \n");
-    for(int i=0; i<N-1; i++) {
-        printf("%f, %f\n", U[i*m], U[i*m+1]);
+    FILE *fp = fopen("X.csv", "w");
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<n; j++) {
+            fprintf(fp, "%f, ", Traj.x[i*n+j]);
+        }
+        fprintf(fp,"\n");
     }
+    fclose(fp);
 
-    free(U);
+    fp = fopen("U.csv", "w");
+    for(int i=0; i<N-1; i++) {
+        fprintf(fp, "%f, %f\n", Traj.u[i*m], Traj.u[i*m+1]);
+    }
+    fclose(fp);
+
+    // free at the end
+    free(Traj.x);
+    free(Traj.u);
 }
