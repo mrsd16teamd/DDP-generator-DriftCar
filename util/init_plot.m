@@ -4,6 +4,9 @@ grid on
 box on
 hold all
 
+plot([0 5],[-0.3,-0.3]);
+plot([0 5],[0.9,0.9])
+
 % Make boxes to represent start and end car poses
 P = [-0.15  -0.15  0.15  0.15  -0.15; -0.08  0.08  0.08  -0.08  -0.08; 1 1 1 1 1];
 start_x = x0(1);

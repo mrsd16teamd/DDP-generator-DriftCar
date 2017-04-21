@@ -1,5 +1,5 @@
 %% parameters
-p.h= 0.02;
+p.dt= 0.02;
 
 p.m = 2.35;           % mass (kg)
 g = 9.81;
@@ -15,22 +15,26 @@ p.Iz = 0.025; % roatation inertia
 p.mu = 1.31;   
 p.mu_s = 0.55;
 
-p.cu= 1e-2*[1 1];
-p.cdu= 1e-1*[10 15];
+p.cu= 1e-1*[1 1];
+p.cdu= 1e-2*[4 6];
 
-p.cf= [ 10 10 5 10 .1 .1];
+p.cf= [ 15 15 5 10 .1 .1];
 p.pf= [ .01 .01 .1 .1 .1 .1];
 
-p.cx  = 1e-2*[5 5 4];          % running cost coefficients 
+p.cx  = 1e-2*[15 5 3];          % running cost coefficients 
 p.cdx = 1e-3*[1 5 2];
 p.px  = [.01 .01 .1];   % smoothness scales for running cost
 
 p.cdrift = -0.01;
 
-p.limThr= [0 1];
-p.limSteer= [-0.68  0.76];
+p.limThr= [0 4];
+p.limSteer= [-0.77  0.77];
 
-p.xDes = [5 0 0 1 0 0]; % Moose Test
+p.xDes = [5 0 0 0 0 0]; % Moose Test
+
+p.lane_center = 0.34;
+p.lane_thres = 0.30;
+p.croad = 1;
 % p.xDes = [1.2 0.5 pi 0 0 0]; % Parallel Park
 
 
@@ -40,17 +44,18 @@ p.d_thres = 0.3;
 p.Obs = [1 0];
 
 %% initial conditions
-T= 150;              % horizon
+T= 101;              % horizon
 
-x0= [0;0;0;0.1;0;0;0;0;0;0];   % initial state - Moose Test
+x0= [0;0;0;3;0;0;3;0];   % initial state - Moose Test
 % x0= [0;0;0;3.5;0;0;3.5;0;0;0];   % initial state - Parallel Park
 
 
 x00 = x0;
-u0(1,:) = 0.25*randn(1,T) + 0.5; % commanded speed
-u0(2,:) = 0.1*randn(1,T) + 0.1; % steering
 
-Op.max_iter= 300;
+u0(1,:) = 0.25*randn(1,T) + 3; % commanded speed
+u0(2,:) = 0.1*randn(1,T) + 0.2; % steering
+
+Op.max_iter= 5000;
 
 figure(1)
 init_plot(x0,p.xDes,p.Obs);

@@ -64,7 +64,6 @@ delta = u(2,:);
 %     alpha_R = atan((Uy-b*r)/abs(Ux));
 % end
 alpha_F = atan((Uy+a*r)/(abs(Ux)+1e-3))-(Ux/(abs(Ux)+1e-3))*delta;
-
 alpha_R = atan((Uy-b*r)/(abs(Ux)+1e-3));
 
 % safety that keep alpha in valid range

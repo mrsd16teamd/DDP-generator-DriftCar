@@ -1,7 +1,10 @@
 gradef(abs(xxxx), if xxxx>0 then 1 else -1);
 
-x: [x_, y_, phi, Ux, Uy, r, pthr, psteer, dthr, dsteer];
+x: [x_, y_, phi, Ux, Uy, r, pthr, psteer];
 u: [thr, steer];
+
+dthr: (thr-pthr)/dt;
+dsteer: (steer-psteer)/dt;
 
 tire_dyn(Fz,Ux,thr,alpha):=
 block([K,gamma,F,Fx,Fy],
@@ -65,17 +68,14 @@ dr, dUx, dUy, U, dx, dy],
 );
 
 [s1,s2,s3,s4,s5,s6]: dx([x_,y_,phi,Ux,Uy,r],[thr,steer]);
-f[x_]: x_ + s1*h;
-f[y_]: y_ + s2*h;
-f[phi]: phi + s3*h;
-f[Ux]: Ux + s4*h;
-f[Uy]: Uy + s5*h;
-f[r]: r + s6*h;
+f[x_]: x_ + s1*dt;
+f[y_]: y_ + s2*dt;
+f[phi]: phi + s3*dt;
+f[Ux]: Ux + s4*dt;
+f[Uy]: Uy + s5*dt;
+f[r]: r + s6*dt;
 f[pthr]: thr;
 f[psteer]: steer;
-f[dthr]: thr-pthr;
-f[dsteer]: steer-psteer;
-
 
 sqrtabs(x, e):= sqrt(x^2 + e^2) - e;
 
@@ -90,14 +90,16 @@ Udynamic: if (x_-Obs[0])*Ux +(y_-Obs[1])*Uy <0
 then 0.0
 else ((x_-Obs[0])*Ux +(y_-Obs[1])*Uy)/(dist2obs*velnorm);
 
-
+off_center: if (y_-lane_center)^2 < lane_thres^2
+then 0.0
+else (y_-lane_center)^2;
 
 F: cf[0]*sqrtabs(x_-xDes[0], pf[0])  + cf[1]*sqrtabs(y_-xDes[1], pf[1])  + cf[2]*sqrtabs(phi-xDes[2], pf[2])  + cf[3]*sqrtabs(Ux-xDes[3], pf[3]) + cf[4]*sqrtabs(Uy-xDes[4], pf[4]) + cf[5]*sqrtabs(r-xDes[5], pf[5]);
 L: cu[0]*thr^2.0 + cu[1]*steer^2.0 
 + cdu[0]*dthr^2.0 + cdu[1]*dsteer^2.0 
 + cx[0]*sqrtabs(x_-xDes[0], px[0]) + cx[1]*sqrtabs(y_-xDes[1], px[1]) + cx[2]*sqrtabs(phi-xDes[2], px[2]) 
 + cdx[0]*sqrtabs(Ux-xDes[3], px[0]) + cdx[1]*sqrtabs(Uy-xDes[4], px[1]) + cdx[2]*sqrtabs(r-xDes[5], px[2]) 
-+ cdrift*(sqrtabs(x[4], 1)-0.2) + k_pos*Ustatic + k_vel*Udynamic;
++ cdrift*(sqrtabs(x[4], 1)-0.2) + k_pos*Ustatic + k_vel*Udynamic + croad*off_center;
 
 h[1]: -thr + limThr[0]; 
 h[2]: thr - limThr[1]; 

@@ -1,6 +1,6 @@
 function y = rerun(x0,u,params)
 % animate the resulting trajectory
-dt = params.h
+dt = params.dt
 figure(1)
 title('Rerun (Robot)');
 show_wheels = 1;

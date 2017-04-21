@@ -1,7 +1,10 @@
 gradef(abs(xxxx), if xxxx>0 then 1 else -1);
 
-x: [x_, y_, phi, Ux, Uy, r, pthr, psteer, dthr, dsteer];
+x: [x_, y_, phi, Ux, Uy, r, pthr, psteer];
 u: [thr, steer];
+
+dthr: thr-pthr;
+dsteer: steer-psteer;
 
 U: sqrt(Ux^2+Uy^2+1e-6);
 
@@ -66,17 +69,14 @@ dr: (a*Fyf*cos(steer)-b*Fyr)/Iz;
 dUx: (Fxr-Fyf*sin(steer))/m+r*Uy;
 dUy: (Fyf*cos(steer)+Fyr)/m-r*Ux;
 
-f[x_]: x_ + 'dx*h;
-f[y_]: y_ + 'dy*h;
-f[phi]: phi + r*h;
-f[Ux]: Ux + 'dUx*h;
-f[Uy]: Uy + 'dUy*h;
-f[r]: r + 'dr*h;
+f[x_]: x_ + dx*dt;
+f[y_]: y_ + dy*dt;
+f[phi]: phi + r*dt;
+f[Ux]: Ux + dUx*dt;
+f[Uy]: Uy + dUy*dt;
+f[r]: r + dr*dt;
 f[pthr]: thr;
 f[psteer]: steer;
-f[dthr]: thr-pthr;
-f[dsteer]: steer-psteer;
-
 
 sqrtabs(x, e):= sqrt(x^2 + e^2) - e;
 dist2obs: sqrt((x_-Obs[0])^2 + (y_-Obs[1])^2 +1e-6);
