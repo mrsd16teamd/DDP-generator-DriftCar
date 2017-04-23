@@ -1,4 +1,4 @@
-function testDriftCarOnline
+function testDriftCarOnlineOL
 
 %% Initialize Global MATLAB-ROS node if not already active
 
@@ -82,7 +82,7 @@ p.xDes = [3 0 0 3 0 0]; % Moose Test
 % p.xDes = [1.2 0.5 pi 0 0 0]; % Parallel Park
 
 
-p.k_pos = 0;
+p.k_pos = 0.1;
 p.k_vel = 0;
 p.d_thres = 0.3;
 p.Obs = [1 0];
@@ -101,37 +101,24 @@ u0(2,:) = 0.1*randn(1,T) + 0.1; % steering
 
 Op.max_iter= 100;
 
-%% Initialise path and control
-
-X = [];%zeros(10,100);
-U = [];%zeros(2,100);
-count = 1;
+X = [];
+U = [];
 
 %% Get obstacle location and generate trajectory
 
 disp('Waiting for obstacle data...')
 
-% p.Obs = getObstacleLocation;
+p.Obs = getObstacleLocation;
 
-% while pdist([x0(1:2)';p.xDes(1:2)]) > 0.15
-    tic
-    [success, x, u, cost]= iLQGDriftCar(x0, u0, p, Op);
-    
-%     X(:,count) = x(:,1:T/2);
-%     U(:,count) = u(:,1:T/2);
-    X = [X x(:,:)];
-    U = [U u(:,:)];
-% 
-%     p.cf = 5*p.cf;
-%     p.cdu = 2*p.cdu;
-%     x0 = x(:,T/2);
-%     u0 = [u(:,T/2+1:end),.1*randn(2,T/2)];
-    toc
-% end
+tic
+[success, x, u, cost]= iLQGDriftCar(x0, u0, p, Op);
+X = [X x(:,:)];
+U = [U u(:,:)];
+toc
 
-% Execute & plot trajectory
+%% Execute & plot trajectory
 
-publishTrajectory(twist_chatpub,twist_msg,traj_chatpub,traj_msg,X,U);
+publishTrajectory;
 
 disp('Plotting executed trajectory')
 
@@ -166,28 +153,32 @@ function obs = getObstacleLocation
             break;
         end
     end
-%     twist_msg_sub = twist_sub.LatestMessage;
-%     odom_msg = odom_sub.LatestMessage;
-% %     amcl_msg = amcl_sub.LatestMessage;
-%     
-%     x0(4) = odom_msg.Twist.Twist.Linear.X;
-%     x0(5) = odom_msg.Twist.Twist.Linear.Y;
-%     x0(6) = odom_msg.Twist.Twist.Angular.Z;
-%     x0(7) = twist_msg_sub.Linear.X;
-%     x0(8) = twist_msg_sub.Angular.Z;
 
 end
 
-function publishTrajectory(twist_chatpub,twist_msg,traj_chatpub,traj_msg,X,U)
+function publishTrajectory
     disp('Publishing trajectory')
     rate = rosrate(T);
     reset(rate);
     
-    for i=1:T*1.5    
+    init_odom_msg = odom_sub.LatestMessage;
+    init_x = init_odom_msg.Pose.Pose.Position.X;
+    init_y = init_odom_msg.Pose.Pose.Position.Y;
+    init_ori = init_odom_msg.Pose.Pose.Orientation;
+    
+    % Ramp up 2s
+    for i=1:T*2    
         twist_msg.Linear.X = 3;
         twist_msg.Angular.Z = 0;
 
-        send(twist_chatpub,twist_msg)
+        traj_msg.Header.FrameId = '/map';
+        traj_msg.Twist.Twist = twist_msg;
+        traj_msg.Pose.Pose.Position.X = 3/T + init_x;
+        traj_msg.Pose.Pose.Position.Y = init_y;
+        traj_msg.Pose.Pose.Orientation = init_ori;
+       
+        send(twist_chatpub,twist_msg);
+        send(traj_chatpub,traj_msg);
         waitfor(rate);
     end
     
@@ -200,8 +191,8 @@ function publishTrajectory(twist_chatpub,twist_msg,traj_chatpub,traj_msg,X,U)
         traj_msg.Pose.Pose.Position.X = X(1,i);
         traj_msg.Pose.Pose.Position.Y = X(2,i);
 
-        send(twist_chatpub,twist_msg)
-        send(traj_chatpub,traj_msg)
+        send(twist_chatpub,twist_msg);
+        send(traj_chatpub,traj_msg);
         waitfor(rate);
     end
 
